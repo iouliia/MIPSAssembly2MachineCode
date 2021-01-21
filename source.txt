@@ -1,0 +1,6 @@
+LW 4, 1, 1 -- carregar no registo 1 dados que se encontram no endereço [registo4+1] na memória de dados
+LW 4, 2, 0 -- carregar no registo 1 dados que se encontram no endereço [registo2+0] na memória de dados
+ADD 1,2,3 --realizar operação registo3=registo1 + registo2
+SLS 1,2,4 --realizar operação registo4=registo1 SLS registo2
+SW 1, 3, 0 -- escrever no endereço [registo1+0] na memória de dados o conteúdo do registo3
+SW 1, 4, 1 -- escrever no endereço [registo1+1] na memória de dados o conteúdo do registo4
