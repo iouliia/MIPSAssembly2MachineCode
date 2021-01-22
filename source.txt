@@ -1,6 +1,22 @@
-LW 4, 1, 1 -- carregar no registo 1 dados que se encontram no endereço [registo4+1] na memória de dados
-LW 4, 2, 0 -- carregar no registo 1 dados que se encontram no endereço [registo2+0] na memória de dados
-ADD 1,2,3 --realizar operação registo3=registo1 + registo2
-SLS 1,2,4 --realizar operação registo4=registo1 SLS registo2
-SW 1, 3, 0 -- escrever no endereço [registo1+0] na memória de dados o conteúdo do registo3
-SW 1, 4, 1 -- escrever no endereço [registo1+1] na memória de dados o conteúdo do registo4
+﻿--Este programa encontra o maior de 3 valores unsigned, armazenados nos endereços 0, 1 e 2 na memória de dados 
+--e escreve o resultado no endereço 3
+
+--ler dados para registos 1, 2 e 3
+LW 	$0, $1, 0 -- carregar no registo 1 dados que se encontram no endereço [registo0+0] na memória de dados
+LW	$0, $2, 1 -- carregar no registo 2 dados que se encontram no endereço [registo0+1] na memória de dados
+LW	$0, $3, 2 -- carregar no registo 3 dados que se encontram no endereço [registo0+2] na memória de dados
+
+--encontrar o máximo entre os dois primeiros dados, armazenados nos registos 1 e 2; o resultado é guardado no registo7
+SLU	$1, $2, $4 -- realizar operação registo4=registo1 SLU registo2
+BEQ	$0, $4, 2 -- if registo4==0 (i.e. se registo1 >= registo2) salta duas instruções
+OR	$0, $2, $7 -- registo7 = registo2; registo7 guarda o máximo
+BEQ	$0, $0, 1 -- saltar 1 instrução
+OR	$0, $1, $7 -- registo7 = registo1; registo7 guarda o máximo
+
+--encontrar o máximo entre o máximo anterior e o registo3; o resultado é guardado no registo7
+SLU	$7, $3, $4 -- realizar operação registo4=registo7 SLU registo3
+BEQ	$0, $4, 1  -- if registo4==0 (i.e. se máximo anterior >= registo3) salta uma instrução
+OR	$0, $3, $7 -- registo7 = registo3; registo7 guarda o novo máximo
+
+--transferir o resultado para memória de dados
+SW 	$0, $7, 3 -- escrever no endereço [registo0+3] na memória de dados o conteúdo do registo7 - o máximo encontrado

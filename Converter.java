@@ -9,26 +9,32 @@ public class Converter {
 		String onlyCode = s.split("--")[0]; //delete comments
 		onlyCode = onlyCode.trim(); 		//eliminate leading and trailing spaces
 		onlyCode = onlyCode.toLowerCase();	// convert to lower case
+		onlyCode = onlyCode.replaceAll("\\s", " ");
+		onlyCode = onlyCode.replaceAll("[^a-zA-Z0-9 .,]", "");
+		if (onlyCode.isEmpty())
+			return "";
 		
 		//Processing opcode
-		String opcode = onlyCode.split("\\s")[0]; //extract instruction name
-		if (opcode.equals("nop"))
-			return "0000000000000000";
-		else if (opcode.equals("lw"))
-			return lwInstruction(onlyCode);
-		else if (opcode.equals("sw"))	
-			return swInstruction(onlyCode);
-		else if (opcode.equals("nop"))	
+		String name = onlyCode.split("\\s")[0]; //extract instruction name
+		if (name.equals("lw"))
+			return typeII_Instruction(onlyCode, name, "111");
+		else if (name.equals("sw"))	
+			return typeII_Instruction(onlyCode, name, "110");
+		else if (name.equals("beq"))	
+			return typeII_Instruction(onlyCode, name, "010");
+		else if (name.equals("bne"))	
+			return typeII_Instruction(onlyCode, name, "011");
+		else if (name.equals("nop"))	
 			return "0000000000000000";
 		else 	
-			return alInstruction(onlyCode);
+			return typeI_Instruction(onlyCode);
 	}
 	
-	public static String lwInstruction(String s)
+	public static String typeII_Instruction(String s, String name, String opcode)
 	{
-		s = s.replace("lw", "");	// remove instruction name
+		s = s.replace(name, "");	// remove instruction name
 		s = s.trim(); 				//eliminate leading and trailing spaces
-		String result = "111";
+		String result = opcode;
 		String[] values = s.split(","); // get field values
 		//rs field - 3 bits
 		result += getField(values[0], 3);
@@ -39,22 +45,7 @@ public class Converter {
 		return result;	
 	}
 	
-	public static String swInstruction(String s)
-	{
-		s = s.replace("sw", "");	// remove instruction name
-		s = s.trim(); 				//eliminate leading and trailing spaces
-		String result = "110";
-		String[] values = s.split(","); // get field values
-		//rs field - 3 bits
-		result += getField(values[0], 3);
-		//rt field - 3 bits
-		result += getField(values[1], 3);
-		//address field - 7 bits
-		result += getField(values[2], 7);
-		return result;	
-	}
-	
-	public static String alInstruction(String s)
+	public static String typeI_Instruction(String s)
 	{
 		String result = "001";
 		s = s.trim();
@@ -78,7 +69,7 @@ public class Converter {
 			case "and":	result += getField("2", 4); break;
 			case "or":	result += getField("3", 4); break;
 			case "xor":	result += getField("4", 4); break;
-			case "xnor":	result += getField("5", 4); break;
+			case "xnor":result += getField("5", 4); break;
 			case "muu":	result += getField("6", 4); break;
 			case "mus":	result += getField("7", 4); break;
 			case "sll":	result += getField("8", 4); break;
@@ -106,25 +97,29 @@ public class Converter {
 	}
 	
 	public static void main(String[] args) 
-	{
+	{ 
 		Scanner input;
 		try {
 			input = new Scanner(new File("source.txt"));
 			FileWriter writer = new FileWriter("InstrMemory.txt");
 			while (input.hasNextLine()) {
 				String codeLine = input.nextLine();
-				String machineCode = "\"";
-				machineCode += convertLineCode (codeLine);
-				machineCode += "\", ";
-				System.out.println(codeLine);
-				System.out.println(machineCode);
-				writer.write(machineCode);
+				String convRes = convertLineCode (codeLine);
+				if (!convRes.isEmpty())
+				{
+					String machineCode = "\"";
+					machineCode += convRes;
+					machineCode += "\", ";
+					System.out.println(codeLine);
+					System.out.println(machineCode);
+					writer.write(machineCode);
+				}
 			}
 			writer.write(" others => (others => '0')");
 			input.close();
 			writer.close();
 		} catch (FileNotFoundException e) {
-			System.out.println("Ficheiro não existente.");
+			System.out.println("Ficheiro nï¿½o existente.");
 		}
 		catch (IOException e) {
 			System.out.println("I/O exception.");
